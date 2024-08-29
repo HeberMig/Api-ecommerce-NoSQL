@@ -6,9 +6,30 @@ const pedidoSchema = mongoose.Schema({
         required: true,
         ref: 'User'
     },
-    order: {
+    productos: [{
+        producto:{
+        type: moogose.Schema.Types.ObjectId,
+        ref: 'Producto',
+        required: true
+    },
+    cantidad: {
+        type: Number,
+        required: true,
+        min: 1
+    },
+    precio:{
+        type: Number,
+        required: true
+    }
+}],
+    total:{
+        type: Number,
+        required: true
+        },
+    estado:{
         type: String,
-        required: [true, 'Por favor crear un pedido']
+        enum: ['pendiente', 'enviado', 'recibido','cancelado'],
+        default: 'pendiente'
     }
 },{
     timestamps: true

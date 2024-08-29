@@ -40,7 +40,7 @@ const createProduct = asyncHandler(async (req, res) => {
     throw new Error("Producto ya existe");
   }
   const producto = await Producto.create({
-    user,
+    user: req.user.id,//Autenticar al user
     name,
     description,
     price,
@@ -96,7 +96,8 @@ const deleteProducts = asyncHandler(async (req, res) => {
     res.status(401)
     throw new Error("No tienes permiso para eliminar este producto")
   } else {
-    await Producto.deleteOne();
+    //await Producto.deleteOne();
+    await Producto.findByIdAndDelete(req.params.id)
     res.status(200).json({ message: "Producto Eliminado", id: req.params.id })
   }
 });
