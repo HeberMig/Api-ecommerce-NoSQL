@@ -8,7 +8,7 @@ const pedidoSchema = mongoose.Schema({
     },
     productos: [{
         producto:{
-        type: moogose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Producto',
         required: true
     },

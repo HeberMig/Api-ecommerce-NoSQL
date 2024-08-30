@@ -60,7 +60,7 @@ const createProduct = asyncHandler(async (req, res) => {
       category: producto.category,
     });
   } else {
-    res.status(400);
+    res.status(400)
     throw new Error("Error al crear producto");
   }
 });

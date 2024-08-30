@@ -1,32 +1,52 @@
 const asyncHandler = require('express-async-handler')
-//const Order = require('../models/ordersModel')
-//const Product = require('../models/productModel')
+const Pedido = require('../models/ordersModel')
+//const Producto = require('../models/productModel')
 
 
 //Mostrar todos los pedidos
 const getOrders = asyncHandler(async (req, res) => {
-    //const { name, lastName, email, password} = req.body
-    res.status(200).json({
-        message: "Mostrar pedidos",
-    })
-
 })
 
 //Mostrar un pedido en especifico
 const getOrdersSearch = asyncHandler(async (req, res) =>{
-    res.status(200).json({
-        message: "Buscar pedido por id"
-    })})
+    })
 
    
 //Crear un nuevo pedido
 const createOrders = asyncHandler(async (req, res) => {
-    const {productos, total} = req.body
-    res.status(201).json({
-        message: "Crear pedido",
+    const {productos, total, estado} = req.body
+    
+    if(!productos || !total || !estado){
+        res.status(400);
+        throw new Error('Faltan campos')
+    }
+    // const existePedido = await Pedido.findOne({ productos })
+    // if(existePedido){
+    //     res.status(400)
+    //     throw new Error('El pedido ya existe')
+    //     }
+    const pedido = await Pedido.create({
+        user: req.user.id,
+        productos, 
+        total,
+        estado,
     })
+    if(pedido){
+        res.status(201).json({
+            message: "Pedido creado con exito",
+            _id: pedido.id,
+            user: pedido.user,
+            productos: pedido.productos,
+            total: pedido.total,
+            estado: pedido.estado,
+    })
+} else {
+    res.status(400)
+        throw new Error('Error al crear el pedido')
+}
 
 })
+
 
 // const updateOrders = (async (req, res) => {
 //     //const { name, lastName, email, password} = req.body
