@@ -5,10 +5,26 @@ const Pedido = require('../models/ordersModel')
 
 //Mostrar todos los pedidos
 const getOrders = asyncHandler(async (req, res) => {
+    //const orders = await Pedido.find().populate('user', 'name email')
+    const orders = await Pedido.find()
+    res.status(200).json(orders)
+
 })
 
 //Mostrar un pedido en especifico
 const getOrdersSearch = asyncHandler(async (req, res) =>{
+    const {id} = req.params
+
+    if(!id){
+        res.status(400)
+        throw new Error("No se proporciono el id")
+    }
+    const orders = await Pedido.findById(id)
+    if(!orders){
+        res.status(404)
+        throw new Error("No se encontro el pedido")
+    }
+    res.status(200).json(orders)
     })
 
    

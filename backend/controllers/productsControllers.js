@@ -8,21 +8,21 @@ const getProducts = asyncHandler(async (req, res) => {
 });
 
 const getSearchProducts = asyncHandler(async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params
 
   if (!id) {
-    res.status(400);
-    throw new Error("No se proporciono el id");
+    res.status(400)
+    throw new Error("No se proporciono el id")
   }
 
-  const producto = await Producto.findById(id);
+  const producto = await Producto.findById(id)
 
   if (!producto) {
     res.status(404);
-    throw new Error("Producto no encontrado");
+    throw new Error("Producto no encontrado")
   }
   res.status(200).json(producto);
-});
+})
 
 const createProduct = asyncHandler(async (req, res) => {
   //destructuramos product
@@ -30,14 +30,14 @@ const createProduct = asyncHandler(async (req, res) => {
 
   if (!user || !name || !description || !price || !image || !category) {
     res.status(400);
-    throw new Error("Faltan campos");
+    throw new Error("Faltan campos")
   }
 
-  const existeProducto = await Producto.findOne({ name });
+  const existeProducto = await Producto.findOne({ name })
 
   if (existeProducto) {
     res.status(400);
-    throw new Error("Producto ya existe");
+    throw new Error("Producto ya existe")
   }
   const producto = await Producto.create({
     user: req.user.id,//Autenticar al user
@@ -46,7 +46,7 @@ const createProduct = asyncHandler(async (req, res) => {
     price,
     image,
     category,
-  });
+  })
 
   if (producto) {
     res.status(201).json({
@@ -58,32 +58,32 @@ const createProduct = asyncHandler(async (req, res) => {
       price: producto.price,
       image: producto.image,
       category: producto.category,
-    });
+    })
   } else {
     res.status(400)
-    throw new Error("Error al crear producto");
+    throw new Error("Error al crear producto")
   }
-});
+})
 
 const updateProducts = asyncHandler(async (req, res) => {
   const producto = await Producto.findById(req.params.id);
   if (!producto) {
     res.status(404);
-    throw new Error("Producto no encontrado");
+    throw new Error("Producto no encontrado")
   }
 
   if (producto.user.toString() !== req.user.id) {
     res.status(401);
-    throw new Error("No tienes permiso para editar este producto");
+    throw new Error("No tienes permiso para editar este producto")
   } else {
     const productoUpdate = await Producto.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true }
-    );
-    res.status(200).json({ message: "Producto Actualizado", productoUpdate });
+    )
+    res.status(200).json({ message: "Producto Actualizado", productoUpdate })
   }
-});
+})
 
 
 const deleteProducts = asyncHandler(async (req, res) => {
@@ -108,4 +108,4 @@ module.exports = {
   createProduct,
   updateProducts,
   deleteProducts,
-};
+}
