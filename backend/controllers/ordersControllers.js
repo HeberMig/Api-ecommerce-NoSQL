@@ -4,27 +4,43 @@ const Pedido = require('../models/ordersModel')
 
 
 //Mostrar todos los pedidos
-const getOrders = asyncHandler(async (req, res) => {
+const getOrders = asyncHandler(async(req, res) => {
     //const orders = await Pedido.find().populate('user', 'name email')
-    const orders = await Pedido.find()
-    res.status(200).json(orders)
+    try{
+    //const pedidos = await Pedido.find()
+    console.log('User ID:', req.user.id, req.user.name)
+    if (req.user.role !== 'user') {
+        return res.status(403).json({ message: 'No tienes permiso para ver todos los pedidos' });
+    }
+    const pedidos = await Pedido.find({ user: req.user.id })
+    // if(pedidos.user.toString() !== req.user.id) {
+    // return res.status(403).json({ message: 'No tienes permiso para ver este pedido' });
+    // }
+    res.status(200).json(pedidos)
+    }catch(error){
+        res.status(500).json({message: 'Error al obtener los pedidos', error})
+        }
 
 })
 
 //Mostrar un pedido en especifico
 const getOrdersSearch = asyncHandler(async (req, res) =>{
-    const {id} = req.params
-
-    if(!id){
-        res.status(400)
-        throw new Error("No se proporciono el id")
+    const { id } = req.params
+    try{
+    const pedido = await Pedido.findById(id)
+    if(!pedido){
+        res.status(404).json({message: 'Pedido no encontrado'})
+        }
+    if(pedido.user.toString() !== req.user.id && req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'No tienes permiso para ver este pedido' });
     }
-    const orders = await Pedido.findById(id)
-    if(!orders){
-        res.status(404)
-        throw new Error("No se encontro el pedido")
-    }
-    res.status(200).json(orders)
+    //if (orders.user.toString() !== req.user.id && req.user.role !== 'admin') {
+    //return res.status(403).json({ message: 'No tienes permiso para ver este pedido' });
+    //}    
+    res.status(200).json(pedido)
+    }catch(error){
+        res.status(500).json({message: 'Error al obtener el pedido', error})
+        }
     })
 
    
@@ -36,11 +52,6 @@ const createOrders = asyncHandler(async (req, res) => {
         res.status(400);
         throw new Error('Faltan campos')
     }
-    // const existePedido = await Pedido.findOne({ productos })
-    // if(existePedido){
-    //     res.status(400)
-    //     throw new Error('El pedido ya existe')
-    //     }
     const pedido = await Pedido.create({
         user: req.user.id,
         productos, 
@@ -64,24 +75,37 @@ const createOrders = asyncHandler(async (req, res) => {
 })
 
 
-// const updateOrders = (async (req, res) => {
-//     //const { name, lastName, email, password} = req.body
-//     res.status(200).json({
-//         message: "Actualizar Orden",
-//     })
+const updateOrders = asyncHandler(async(req, res) => {
+    const pedido = await Pedido.findById(req.params.id)
+    if(!pedido){
+        res.status(404)
+        throw new Error('Pedido no encontrado')
+    } else{
+        const pedidoUpdate = await Pedido.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true}
+        )
+        res.status(200).json({ message: "Pedido actualizado", pedidoUpdate})
+    }
+})
 
-// })
+const deleteOrders = asyncHandler(async(req, res) => {
+const pedido = await Pedido.findById(req.params.id)
+if(!pedido){
+    res.status(404)
+    throw new Error('Pedido no encontrado')
+    } 
+    await Pedido.findByIdAndDelete(req.params.id)
+    res.status(200).json({ message: 'Pedido eliminado', id: req.params.id})
 
-// const deleteOrders = (async (req, res) => {
-//     //const { name, lastName, email, password} = req.body
-//     res.status(200).json({
-//         message: "Eliminar pedido",
-//     })
-
-// })
+ 
+})
 
 module.exports = {
     getOrders,
     getOrdersSearch,
-    createOrders
+    createOrders,
+    updateOrders,
+    deleteOrders
 }
