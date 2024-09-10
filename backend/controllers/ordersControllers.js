@@ -81,6 +81,10 @@ const updateOrders = asyncHandler(async(req, res) => {
         res.status(404)
         throw new Error('Pedido no encontrado')
     } else{
+        if(pedido.user.toString() !== req.user.id && req.user.role !== 'admin'){
+            res.status(403).json({ message: 'No tienes permiso para actualizar este pedido'})
+
+        }
         const pedidoUpdate = await Pedido.findByIdAndUpdate(
             req.params.id,
             req.body,
@@ -95,9 +99,13 @@ const pedido = await Pedido.findById(req.params.id)
 if(!pedido){
     res.status(404)
     throw new Error('Pedido no encontrado')
-    } 
+} else{
+    if(pedido.user.toString() !== req.user.id && req.user.role !== 'admin'){
+        res.status(403).json({ message: 'No tienes permiso para eliminar este pedido'})
+    }
     await Pedido.findByIdAndDelete(req.params.id)
     res.status(200).json({ message: 'Pedido eliminado', id: req.params.id})
+    }
 
  
 })
